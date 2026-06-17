@@ -9,6 +9,7 @@
   - [Syllabus](#syllabus)
     - [Foundation Courses](#foundation-courses)
     - [Language Specifc Courses](#language-specific-courses)
+    - [Advanced / Job-specific Courses](#advanced--job-specific-courses)
 
 ## Introduction
 
@@ -77,8 +78,13 @@ CRUX has a vast syllabus defined as follows:
 
 ### Advanced / Job specific Courses
 
-- Web Developer
-- Full-Stack Developer
+- Web Developer (javascript)
+- Frontend Developer
+- Backend Developer
+- Full-Stack Developer (python)
+- Full-Stack Developer (JAVA)
+- Full-Stack Developer (.NET)
 - Embedded Systems Engineer
-- 
+- Verilog/VHDL Enginner
+- Data Engineer
 
