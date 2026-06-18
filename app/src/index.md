@@ -44,7 +44,7 @@ CRUX has a vast syllabus defined as follows:
 
 ### Foundation Courses
 
-- Understanding the Computer
+- [Understanding the Computer](foundation_courses/ch1.md)
 
 - Understanding Operating Systems
   - Understanding Windows
