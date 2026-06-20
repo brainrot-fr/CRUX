@@ -7,36 +7,38 @@
     <link rel="stylesheet" href="global.css">
     <!-- page-specific CSS is swapped into here by renderer.js -->
     <style id="page-style"></style>
-    <!-- Prism.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-
     <!-- Core + Languages -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+
+    <script src="lib/prism/prism-core.min.js"></script>
+    <script src="lib/prism/prism-clike.min.js"></script>
+    <script src="lib/prism/prism-markup.min.js"></script>
+    <script src="lib/prism/prism-markup-templating.min.js"></script>
+    <script src="lib/prism/prism-css.min.js"></script>
+    <script src="lib/prism/prism-javascript.min.js"></script>
+    <script src="lib/prism/prism-typescript.min.js"></script>
+    <script src="lib/prism/prism-python.min.js"></script>
+    <script src="lib/prism/prism-bash.min.js"></script>
+    <script src="lib/prism/prism-json.min.js"></script>
+    <script src="lib/prism/prism-markdown.min.js"></script>
+    <script src="lib/prism/prism-yaml.min.js"></script>
+    <script src="lib/prism/prism-c.min.js"></script>
+    <script src="lib/prism/prism-cpp.min.js"></script>
+    <script src="lib/prism/prism-java.min.js"></script>
+    <script src="lib/prism/prism-go.min.js"></script>
+    <script src="lib/prism/prism-rust.min.js"></script>
+    <script src="lib/prism/prism-sql.min.js"></script>
+    <script src="lib/prism/prism-php.min.js"></script>
+    <script src="lib/prism/prism-csharp.min.js"></script>
 </head>
-<body>1
+
+<body>
 
     <nav id="navbar">
         <span class="brand">CRUX</span>
         <div class="nav-links">
             <a href="#/home">Home</a>
             <a href="#/intro/intro">Intro to Hardware</a>
+            <a href="#/TEST">Test Page</a>
         </div>
     </nav>
 
@@ -44,10 +46,8 @@
         <!-- renderer.js dumps page content here on every navigation -->
     </main>
 
-    <!-- load order matters: marked first, then extensions, then renderer -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="lib/marked.min.js"></script>
     <script src="extensions/spoiler.js"></script>
     <script src="renderer.js"></script>
-
 </body>
 </html>

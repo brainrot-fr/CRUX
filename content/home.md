@@ -4,7 +4,7 @@ title: Home
  
 # Welcome to CRUX
  
-This is the home page. Navigate to [Intro to Hardware](#/intro) to see the renderer in action.
+This is the home page. Navigate to [Intro to Hardware](#/intro/intro) to see the renderer in action.
  
 ## Renderer test bench
  
@@ -35,3 +35,6 @@ if (a || b || c) {
 }
 ```
  
+| Name | Place|
+|------|-----------|
+| Raju | Hyderabad |

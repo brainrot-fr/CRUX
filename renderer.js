@@ -25,12 +25,6 @@ const DEFAULT_ROUTE = 'home';
 marked.setOptions({
     gfm: true,
     breaks: false,
-    highlight: function(code, lang) {
-        if (typeof Prism !== 'undefined' && Prism.languages[lang]) {
-            return Prism.highlight(code, Prism.languages[lang], lang);
-        }
-        return code; // fallback if language not loaded or Prism missing
-    }
 });
 
 // ── Frontmatter parser ──────────────────────────────────────────────────
@@ -146,6 +140,8 @@ async function loadRoute(route) {
         const html = marked.parse(processedBody);
 
         app.innerHTML = html;
+
+        Prism.highlightAllUnder(app); // Syntax Highlighting using Prism.js
 
         // Set tab title if frontmatter provided one
         document.title = meta.title ? `${meta.title} — CRUX` : 'CRUX';

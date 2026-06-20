@@ -6,7 +6,7 @@
 
 body {
     font-family: system-ui, -apple-system, sans-serif;
-    background: #0d0d0d;
+    background: #1f1f1f;
     color: #e2e2e2;
     min-height: 100vh;
 }
@@ -71,9 +71,9 @@ body {
 }
 
 #app code {
-    font-family: 'Fira Code', 'Cascadia Code', monospace;
+    font-family: 'JetBrains Mono Nerd', 'Fira Code', 'Cascadia Code', monospace;
     font-size: 0.85em;
-    background: #1a1a1a;
+    background: #2c2c2c;
     border: 1px solid #2a2a2a;
     border-radius: 4px;
     padding: 0.1em 0.4em;
@@ -182,3 +182,49 @@ body {
 /* ── Renderer states ────────────────────────────────────────────────────── */
 .loading { opacity: 0.35; font-style: italic; }
 .error   { color: #ff5555; }
+
+
+
+/*── Table Borders ────────────────────────────────────────────────────── */
+#app table {
+  border-collapse: collapse;
+  border: 1px solid #fff;
+}
+
+#app table th,
+#app table td {
+  border: 1px solid #fff;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+#app table th {
+  font-weight: bold;
+}
+
+
+#app ul {
+    padding-left: 2rem;
+    padding-bottom: 1rem;
+}
+
+#app ol {
+    padding-left: 2rem;
+    padding-bottom: 1rem;
+}
+
+#app h1, #app h2 {
+    border-bottom: 1px solid #888;
+}
+
+#app h2 {
+    margin-top: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+blockquote {
+    background-color: #161616;
+    color:#6e7681;
+    padding-left: 1.5rem;
+    border-left: 4px solid rgb(79, 79, 79);
+}
