@@ -1,0 +1,274 @@
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #1f1f1f;
+    color: #e2e2e2;
+    min-height: 100vh;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+#navbar {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 0.9rem 2rem;
+    border-bottom: 1px solid #1e1e1e;
+    position: sticky;
+    top: 0;
+    background: #0d0d0d;
+    z-index: 10;
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: #fff;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+}
+
+.nav-links a:hover {
+    color: #fff;
+}
+
+/* ── Content area ───────────────────────────────────────────────────────── */
+#app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    line-height: 1.75;
+    scroll-behavior: smooth;
+}
+
+/* ── Typography defaults ────────────────────────────────────────────────── */
+#app h1 { font-size: 2rem;   margin-bottom: 1rem;   color: #fff; }
+#app h2 { font-size: 1.5rem; margin-bottom: 0.8rem; color: #f0f0f0; }
+#app h3 { font-size: 1.2rem; margin-bottom: 0.6rem; color: #e0e0e0; }
+#app h4 { font-size: 1rem;   margin-bottom: 0.5rem; color: #d0d0d0; }
+#app p  { margin-bottom: 1rem; }
+
+#app a {
+    color: #7eb8f7;
+    text-decoration: none;
+}
+#app a:hover {
+    text-decoration: underline;
+}
+
+#app code {
+    font-family: 'JetBrains Mono Nerd', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.85em;
+    background: #2c2c2c;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+}
+
+#app pre {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+#app pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.88em;
+}
+
+/* ── Prism Syntax Highlighting ──────────────────────────────────────────── */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #6e7681;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: #8b949e;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #ff7b72;
+}
+
+.token.boolean,
+.token.number {
+    color: #79c0ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #a5d6ff;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #79c0ff;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #ff7b72;
+}
+
+.token.function,
+.token.class-name {
+    color: #d2a8ff;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #ffa657;
+}
+
+.token.bold {
+    font-weight: bold;
+}
+
+.token.italic {
+    font-style: italic;
+}
+
+/* ── Spoiler ────────────────────────────────────────────────────────────── */
+.spoiler {
+    background: #2a2a2a;
+    color: transparent;
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s, background 0.2s;
+}
+
+.spoiler.revealed {
+    color: inherit;
+    background: #1e1e1e;
+}
+
+/* ── Renderer states ────────────────────────────────────────────────────── */
+.loading { opacity: 0.35; font-style: italic; }
+.error   { color: #ff5555; }
+
+
+
+/*── Table Borders ────────────────────────────────────────────────────── */
+#app table {
+  border-collapse: collapse;
+  border: 1px solid #fff;
+}
+
+#app table th,
+#app table td {
+  border: 1px solid #fff;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+#app table th {
+  font-weight: bold;
+}
+
+
+#app ul {
+    padding-left: 2rem;
+    padding-bottom: 1rem;
+}
+
+#app ol {
+    padding-left: 2rem;
+    padding-bottom: 1rem;
+}
+
+#app h1, #app h2 {
+    border-bottom: 1px solid #888;
+}
+
+#app h2 {
+    margin-top: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+blockquote {
+    background-color: #161616;
+    color:#6e7681;
+    padding-left: 1.5rem;
+    border-left: 4px solid rgb(79, 79, 79);
+}
+
+#app img{
+    display: block;
+    margin-left: 10%;
+    margin-right: auto;
+}
+
+/* ── Footnotes ──────────────────────────────────────────────────────────── */
+#app sup a {
+    color: #7eb8f7;
+    text-decoration: none;
+    font-size: 0.75em;
+}
+
+#app .footnotes {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+#app .footnotes hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin-bottom: 1rem;
+}
+
+#app .footnotes ol {
+    padding-left: 1.5rem;
+}
+
+#app .footnotes li {
+    margin-bottom: 0.4rem;
+}
+
+#app .footnotes a {
+    color: #7eb8f7;
+    text-decoration: none;
+    margin-left: 0.3rem;
+}
+
+#app summary{
+    font-size:large;
+}

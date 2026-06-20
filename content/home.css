@@ -1,0 +1,10 @@
+/* Page-specific overrides for home.md only.
+   These do NOT affect any other page — renderer.js swaps this
+   out completely when you navigate away. */
+
+h1 {
+    background: linear-gradient(90deg, #7eb8f7, #c77dff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
