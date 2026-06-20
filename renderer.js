@@ -8,8 +8,10 @@
  *   1. Read route from the URL hash
  *   2. Fetch content/{route}.md and content/{route}.css in parallel
  *   3. Swap the page <style> tag (so old page's CSS never bleeds into new page)
- *   4. Parse the .md with marked.js (+ our custom extensions, e.g. spoiler.js)
- *   5. Dump resulting HTML into #app
+ *   4. Protect code blocks, then protect+render math (Temml), in that order
+ *   5. Run custom syntax preprocessors (spoiler, footnotes, etc.)
+ *   6. Restore code, parse with marked.js, then splice rendered math back in
+ *   7. Dump resulting HTML into #app, run Prism for syntax highlighting
  */
 
 const app = document.getElementById('app');
@@ -20,8 +22,6 @@ const DEFAULT_ROUTE = 'home';
 // ── marked.js config ────────────────────────────────────────────────────
 // gfm: true        → tables, strikethrough, etc.
 // breaks: false    → a single newline does NOT force a <br> (standard MD behavior)
-// ── Prism.js Syntax Highlighting ────────────────────────────────────────
-
 marked.setOptions({
     gfm: true,
     breaks: false,
@@ -59,10 +59,10 @@ function parseFrontmatter(raw) {
 }
 
 // ── Code-block protection ───────────────────────────────────────────────
-// Custom syntax (spoiler, future extensions) runs as regex over the raw
-// text. Without this step, those regexes would also fire INSIDE code —
-// dangerous, since e.g. `||` is also the C/C++ logical OR operator and
-// WILL show up in your embedded snippets.
+// Custom syntax (spoiler, footnotes, future extensions) runs as regex over
+// the raw text. Without this step, those regexes would also fire INSIDE
+// code — dangerous, since e.g. `||` is also the C/C++ logical OR operator
+// and WILL show up in your embedded snippets.
 //
 // Covers THREE forms, since you write mostly plain markdown now:
 //   1. Fenced blocks   — ```c ... ```        (most common in plain MD)
@@ -90,20 +90,64 @@ function restoreCodeBlocks(text, stash) {
     return text.replace(/\uE000CRUXCODE(\d+)\uE000/g, (_, i) => stash[Number(i)]);
 }
 
+// ── Math protection + rendering (KaTeX) ──────────────────────────────────
+// $...$ and $$...$$ aren't just hidden like code — they're converted to
+// HTML/CSS RIGHT HERE via KaTeX, and the result is stashed. The stash gets
+// spliced into the FINAL HTML string AFTER marked.parse() runs, never
+// before. This matters: if raw LaTeX source passed through marked at all,
+// marked's own backslash-escaping (CommonMark treats \, \_ \{ etc as
+// escape sequences too) would silently corrupt it before KaTeX ever saw
+// it — same family of bug as the spoiler/`||` issue, different symptom.
+//
+// KaTeX over Temml: Temml outputs native MathML and leans on the host
+// WebView's MathML engine to render it. CRUX runs through FIVE different
+// WebView engines (WebView2, WebKitGTK, WKWebView ×2, Android System
+// WebView) via Tauri, and MathML Core completeness varies across them.
+// KaTeX renders to plain CSS-positioned HTML instead — it doesn't depend
+// on the host engine's math support at all, so it looks identical on
+// every platform regardless of WebView version. Costs ~590KB self-hosted
+// (woff2 fonts only — every Tauri WebView target supports woff2 natively,
+// no need for woff/ttf fallbacks), which is irrelevant for a bundled
+// offline app with no network page-load cost.
+//
+// Always runs AFTER protectCodeBlocks, so things like bash `$HOME` or `$1`
+// inside actual code are already placeholder tokens and never get
+// mistaken for math delimiters.
+function protectMath(text) {
+    const stash = [];
+    const renderAndStash = (displayMode) => (match, inner) => {
+        let mathHtml;
+        try {
+            mathHtml = katex.renderToString(inner.trim(), { displayMode, throwOnError: false });
+        } catch (e) {
+            mathHtml = `<span class="math-error">[math error: ${e.message}]</span>`;
+        }
+        stash.push(mathHtml);
+        return `\uE001CRUXMATH${stash.length - 1}\uE001`;
+    };
+
+    let protectedText = text;
+    // block math ($$...$$) MUST run before inline ($...$), or the inline
+    // regex would treat the opening "$$" as two single-$ delimiters
+    protectedText = protectedText.replace(/\$\$([\s\S]+?)\$\$/g, renderAndStash(true));
+    protectedText = protectedText.replace(/\$([^\$\n]+?)\$/g, renderAndStash(false));
+
+    return { protectedText, stash };
+}
+
+function restoreMath(html, stash) {
+    return html.replace(/\uE001CRUXMATH(\d+)\uE001/g, (_, i) => stash[Number(i)]);
+}
+
 // ── Custom syntax pipeline ───────────────────────────────────────────────
-// Runs every preprocessor registered by extensions/*.js (e.g. spoiler.js)
-// on the body BEFORE marked ever sees it. This is what makes custom syntax
-// work even when wrapped in raw HTML tags — see spoiler.js for the full
-// explanation of why marked extensions alone don't work here.
-function applyCustomSyntax(body) {
-    const { protectedText, stash } = protectCodeBlocks(body);
-
-    let processed = protectedText;
+// Runs every preprocessor registered by extensions/*.js (spoiler.js,
+// footnote.js, etc.) on text that already has code AND math hidden behind
+// placeholder tokens — so neither can be corrupted by custom syntax regex.
+function applyCustomSyntax(text) {
     (window.CruxPreprocessors || []).forEach(preprocessor => {
-        processed = preprocessor(processed);
+        text = preprocessor(text);
     });
-
-    return restoreCodeBlocks(processed, stash);
+    return text;
 }
 
 // ── Core route loader ───────────────────────────────────────────────────
@@ -133,11 +177,29 @@ async function loadRoute(route) {
         // Swap page styles — old style is fully replaced, never appended
         pageStyleTag.textContent = cssText;
 
-        // Parse frontmatter, run custom syntax (spoiler, etc.) BEFORE
-        // marked ever sees it, then render
         const { meta, body } = parseFrontmatter(rawMd);
-        const processedBody = applyCustomSyntax(body);
-        const html = marked.parse(processedBody);
+
+        // 1. protect code FIRST — so $ inside code (bash $HOME, $1, etc.)
+        //    never reaches the math regex
+        const { protectedText: noCode, stash: codeStash } = protectCodeBlocks(body);
+
+        // 2. protect + render math, on the code-protected text
+        const { protectedText: noCodeNoMath, stash: mathStash } = protectMath(noCode);
+
+        // 3. run custom syntax preprocessors (spoiler, footnotes, ...)
+        let processed = applyCustomSyntax(noCodeNoMath);
+
+        // 4. restore code BEFORE marked.parse(), so marked can wrap fenced
+        //    blocks / <pre> properly and Prism can find them afterward
+        processed = restoreCodeBlocks(processed, codeStash);
+
+        // 5. marked.parse() — never sees raw LaTeX or raw code, both are
+        //    still placeholder tokens at this point
+        let html = marked.parse(processed);
+
+        // 6. restore math AFTER marked — splice the already-rendered
+        //    MathML directly into the final HTML output
+        html = restoreMath(html, mathStash);
 
         app.innerHTML = html;
 
@@ -173,7 +235,20 @@ function getCurrentRoute() {
     return route || DEFAULT_ROUTE;
 }
 
+// Routes are "#/something". Anything else in the hash — like "#fn-1" or
+// "#fnref-1" from footnote links — is an in-page anchor, not a route.
+// Without this check, clicking a footnote changes the hash to "#fn-1",
+// the hashchange listener fires, and the router tries to fetch
+// "content/fn-1.md" (which doesn't exist) instead of just letting the
+// browser scroll to the <li id="fn-1"> already sitting in the page.
+function isRouteHash(hash) {
+    return !hash || hash.startsWith('#/');
+}
+
 function handleNavigation() {
+    if (!isRouteHash(window.location.hash)) {
+        return; // bare anchor — let the browser handle the in-page scroll natively
+    }
     const route = getCurrentRoute();
     loadRoute(route);
 }

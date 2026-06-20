@@ -53,6 +53,7 @@ body {
     margin: 0 auto;
     padding: 2.5rem 2rem;
     line-height: 1.75;
+    scroll-behavior: smooth;
 }
 
 /* ── Typography defaults ────────────────────────────────────────────────── */
@@ -227,4 +228,47 @@ blockquote {
     color:#6e7681;
     padding-left: 1.5rem;
     border-left: 4px solid rgb(79, 79, 79);
+}
+
+#app img{
+    display: block;
+    margin-left: 10%;
+    margin-right: auto;
+}
+
+/* ── Footnotes ──────────────────────────────────────────────────────────── */
+#app sup a {
+    color: #7eb8f7;
+    text-decoration: none;
+    font-size: 0.75em;
+}
+
+#app .footnotes {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+#app .footnotes hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin-bottom: 1rem;
+}
+
+#app .footnotes ol {
+    padding-left: 1.5rem;
+}
+
+#app .footnotes li {
+    margin-bottom: 0.4rem;
+}
+
+#app .footnotes a {
+    color: #7eb8f7;
+    text-decoration: none;
+    margin-left: 0.3rem;
+}
+
+#app summary{
+    font-size:large;
 }
