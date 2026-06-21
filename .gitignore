@@ -5,3 +5,5 @@ src-tauri/
 palette.scss
 
 PROJECT_CONTEXT.md
+
+content/home.html

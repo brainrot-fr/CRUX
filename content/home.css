@@ -8,3 +8,39 @@ h1 {
     background-clip: text;
     color: transparent;
 }
+
+.svg {
+    max-width: 2rem;
+    margin: 0.3rem;
+}
+
+.links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.naqliyat-container {
+    cursor: pointer;
+    background-color: #d4c2fc;
+    max-width: 12rem;
+    color:aliceblue;
+    display:flex;
+    border-radius: 10px;
+    margin: 0.2rem;
+    letter-spacing: -1px;
+    box-shadow: 1px 1px 10px 1px #b9a7e2;    
+}
+
+.naqliyat-container:hover {
+    position: relative;
+    
+}
+
+
+
+*{
+    font-family: 'Google Sans Flex','Montserrat';
+    font-size: 1rem;
+}

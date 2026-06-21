@@ -2,22 +2,31 @@
  * CRUX RENDERER
  * ─────────────
  * The ONE renderer for the whole app. Every page is a route like #/intro,
- * which maps to content/intro.md (+ optional content/intro.css).
+ * which maps to content/intro.md (+ optional content/intro.css/.js).
  *
  * Flow on every navigation:
- *   1. Read route from the URL hash
- *   2. Fetch content/{route}.md and content/{route}.css in parallel
- *   3. Swap the page <style> tag (so old page's CSS never bleeds into new page)
- *   4. Protect code blocks, then protect+render math (Temml), in that order
- *   5. Run custom syntax preprocessors (spoiler, footnotes, etc.)
- *   6. Restore code, parse with marked.js, then splice rendered math back in
- *   7. Dump resulting HTML into #app, run Prism for syntax highlighting
+ *   1. Run the PREVIOUS page's cleanup() (if it registered one)
+ *   2. Read route from the URL hash
+ *   3. Fetch content/{route}.md and content/{route}.css in parallel
+ *   4. Swap the page <style> tag (so old page's CSS never bleeds into new page)
+ *   5. Protect code blocks, then protect+render math (KaTeX), in that order
+ *   6. Run custom syntax preprocessors (spoiler, footnotes, etc.)
+ *   7. Restore code, parse with marked.js, then splice rendered math back in
+ *   8. Dump resulting HTML into #app, run Prism for syntax highlighting
+ *   9. Load content/{route}.js (if it exists) and call its init()
  */
 
 const app = document.getElementById('app');
 const pageStyleTag = document.getElementById('page-style');
 
 const DEFAULT_ROUTE = 'home';
+
+// Holds the CURRENT page's cleanup function, if its companion .js exported
+// one. Unlike CSS (which is just textContent swapped on one <style> tag —
+// trivially "undone" by being overwritten), JS has no automatic teardown.
+// An event listener or setInterval() started by one page's init() keeps
+// running after navigating away unless something explicitly stops it.
+let currentPageCleanup = null;
 
 // ── marked.js config ────────────────────────────────────────────────────
 // gfm: true        → tables, strikethrough, etc.
@@ -152,10 +161,26 @@ function applyCustomSyntax(text) {
 
 // ── Core route loader ───────────────────────────────────────────────────
 async function loadRoute(route) {
+    // Tear down the PREVIOUS page's JS first, while its DOM is still intact —
+    // this runs before app.innerHTML is touched at all.
+    if (currentPageCleanup) {
+        try {
+            currentPageCleanup();
+        } catch (e) {
+            console.error('[renderer] cleanup() threw for previous page:', e);
+        }
+        currentPageCleanup = null;
+    }
+
     app.innerHTML = `<p class="loading">Loading…</p>`;
 
     const mdUrl = `content/${route}.md`;
     const cssUrl = `content/${route}.css`;
+    // import() requires an explicit "./", "../", or "/" prefix to treat
+    // this as a relative path at all — fetch() doesn't have that rule,
+    // which is why mdUrl/cssUrl above work fine without it but this one
+    // needs it or it's rejected as an unresolvable "bare specifier"
+    const jsUrl = `./content/${route}.js`;
 
     try {
         // Fetch markdown — this one is required, throw if missing
@@ -210,6 +235,40 @@ async function loadRoute(route) {
 
         // Highlight the active nav link
         highlightActiveNav(route);
+
+        // ── Companion JS (optional) ───────────────────────────────────────
+        // A plain <script src="..."> written directly in the .md content
+        // would NOT work — anything inserted via app.innerHTML (which is
+        // exactly what just happened above) is inert per the HTML spec,
+        // script tags included. dynamic import() is the one mechanism that
+        // actually executes. Checked with a plain fetch first, same as the
+        // CSS file above, so a missing companion .js is a silent, expected
+        // case rather than a console error from a failed import().
+        try {
+            const jsRes = await fetch(jsUrl);
+            if (jsRes.ok) {
+                // cache-bust with a URL FRAGMENT, not a query string. A
+                // fragment is never sent to the server — Tauri's asset
+                // protocol sees a plain, unmodified "content/home.js"
+                // request — but the browser's module map still treats it
+                // as cache-distinct, so editing the file and revisiting
+                // the page during dev re-runs the new code. A query string
+                // (?t=...) DOES get sent to the server, and there's a
+                // documented class of Tauri bug where that confuses its
+                // asset-path matching and falls back to serving index.html
+                // — which then fails as a "MIME type text/html" error,
+                // since strict MIME checking is enforced for module scripts.
+                const module = await import(`${jsUrl}#${Date.now()}`);
+                if (typeof module.init === 'function') {
+                    module.init(app, meta);
+                }
+                if (typeof module.cleanup === 'function') {
+                    currentPageCleanup = module.cleanup;
+                }
+            }
+        } catch (jsErr) {
+            console.error('[renderer] companion JS failed to load/run:', jsUrl, jsErr);
+        }
 
     } catch (err) {
         console.error('[renderer] failed to load route:', route, err);
